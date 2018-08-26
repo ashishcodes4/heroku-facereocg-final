@@ -22,12 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res, next) => {
-  db('users')
-    .returning('*')
-    .then(response => {
-      console.log(response);
-      res.json(response);
-    });
+  res.send('this is working');
 });
 
 //@DESC: '/signin'
