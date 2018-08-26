@@ -160,7 +160,7 @@ app.put('/image', (req, res) => {
 
 //test route 
 app.get('/register', (req, res) => {
-  res.json('this is working')
+  res.send('this is working')
 });
 
 app.listen(port, () => {
