@@ -101,7 +101,10 @@ app.post('/register', (req, res) => {
       })
       .then(trx.commit)
       .catch(trx.rollback);
-  }).catch(err => res.status(400).json('server side error while registering'));
+  }).catch(err => res.status(400).json({
+    msg: "server side error while registering",
+    type: "server side error"
+  }));
 });
 
 //@DESC: '/profile/:id'
