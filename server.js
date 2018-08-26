@@ -157,6 +157,12 @@ app.put('/image', (req, res) => {
     .catch(err => res.status(400).json('unable to get entries'));
 });
 
+
+//test route 
+app.get('/register', (req, res) => {
+  res.json('this is working')
+});
+
 app.listen(port, () => {
   console.log(`server started listening at port: ${port}`);
 });
