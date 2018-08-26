@@ -9,9 +9,8 @@ const knex = require('knex');
 const db = knex({
   client: 'pg',
   connection: {
-    host: '127.0.0.1',
-    user: '',
-    database: 'facerecog',
+    conectionString: process.env.DATABASE_URL,
+    ssl: true,
   },
 });
 
@@ -31,11 +30,11 @@ app.get('/', (req, res, next) => {
 
 app.post('/signin', (req, res) => {
   const { email, password } = req.body;
-  if(!email || !password) {
+  if (!email || !password) {
     return res.status(500).json({
       msg: 'form values not right',
-      type: 'validation error'
-    })
+      type: 'validation error',
+    });
   }
   db.select('email', 'hash')
     .from('login')
@@ -71,11 +70,11 @@ app.post('/signin', (req, res) => {
 //@DESC: Used to sign in users
 app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
-  if(!email || !name || !password) {
+  if (!email || !name || !password) {
     return res.status(500).json({
       msg: 'form values not right',
-      type: 'validation error'
-    })
+      type: 'validation error',
+    });
   }
   const hash = bcrypt.hashSync(password);
   console.log(email, name, password);
@@ -110,11 +109,11 @@ app.post('/register', (req, res) => {
 //@DESC: Used to get profile info for a specific ID number...
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params;
-  if(!id) {
+  if (!id) {
     return res.status(500).json({
       msg: 'form values not right',
-      type: 'validation error'
-    })
+      type: 'validation error',
+    });
   }
   db.select('*')
     .from('users')
@@ -139,21 +138,21 @@ app.get('/profile/:id', (req, res) => {
 //@DESC: Update the count of entries in the db....
 app.put('/image', (req, res) => {
   const { id } = req.body;
-  if(!id) {
+  if (!id) {
     return res.status(500).json({
       msg: 'form values not right',
-      type: 'validation error'
-    })
+      type: 'validation error',
+    });
   }
-  db('users').where({id})
-  .increment('entries', 1)
-  .returning('entries')
-  .then(entries => {
-    res.json(entries[0]);
-  })
-  .catch(err => res.status(400).json('unable to get entries'))
-})
-
+  db('users')
+    .where({ id })
+    .increment('entries', 1)
+    .returning('entries')
+    .then(entries => {
+      res.json(entries[0]);
+    })
+    .catch(err => res.status(400).json('unable to get entries'));
+});
 
 app.listen(port, () => {
   console.log(`server started listening at port: ${port}`);
