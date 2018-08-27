@@ -5,11 +5,12 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const { Client } = require('pg');
 
 const db = knex({
   client: 'pg',
   connection: {
-    conectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
     ssl: true,
   },
 });
