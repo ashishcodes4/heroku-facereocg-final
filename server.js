@@ -68,59 +68,33 @@ app.post('/signin', (req, res) => {
 //@DESC: '/register'
 //@Method: POST
 //@DESC: Used to sign in users
-app
-  .post('/register', (req, res) => {
-    const { email, name, password } = req.body;
-    if (!email || !name || !password) {
-      return res.status(500).json({
-        msg: 'form values not right',
-        type: 'validation error',
-      });
-    }
-    const hash = bcrypt.hashSync(password);
-    console.log(email, name, password);
-
-    db('users')
-      .returning('*')
+app.post('/register', (req, res) => {
+  const { email, name, password } = req.body;
+  const hash = bcrypt.hashSync(password);
+  db.transaction(trx => {
+    trx
       .insert({
-        email: loginEmail[0],
-        name: name,
-        joined: new Date(),
+        hash: hash,
+        email: email,
       })
-      .then(user => {
-        res.json(user[0]);
-      });
-
-    // // console.log(hash);
-    // // db.transaction(trx => {
-    // //   trx
-    // //     .insert({
-    // //       hash: hash,
-    // //       email: email,
-    // //     })
-    // //     .into('login')
-    // //     .returning('email')
-    // //     .then(loginEmail => {
-    // //       return trx('users')
-    // //         .returning('*')
-    // //         .insert({
-    // //           email: loginEmail[0],
-    // //           name: name,
-    // //           joined: new Date(),
-    // //         })
-    // //         .then(user => {
-    // //           res.json(user[0]);
-    // //         });
-    //     })
-    //     .then(trx.commit)
-    //     .catch(trx.rollback);
-  })
-  .catch(err =>
-    res.status(400).json({
-      msg: 'error while registering',
-      type: 'server side error',
-    })
-  );
+      .into('login')
+      .returning('email')
+      .then(loginEmail => {
+        return trx('users')
+          .returning('*')
+          .insert({
+            email: loginEmail[0],
+            name: name,
+            joined: new Date(),
+          })
+          .then(user => {
+            res.json(user[0]);
+          });
+      })
+      .then(trx.commit)
+      .catch(trx.rollback);
+  }).catch(err => res.status(400).json('unable to register'));
+});
 
 //@DESC: '/profile/:id'
 //@Method: GET
