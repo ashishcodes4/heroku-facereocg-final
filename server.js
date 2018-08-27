@@ -72,6 +72,7 @@ app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
   const hash = bcrypt.hashSync(password);
   console.log(email, name, hash);
+  console.log(process.env.DATABASE_URL);
   db.transaction(trx => {
     trx
       .insert({
