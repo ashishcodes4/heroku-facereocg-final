@@ -68,44 +68,59 @@ app.post('/signin', (req, res) => {
 //@DESC: '/register'
 //@Method: POST
 //@DESC: Used to sign in users
-app.post('/register', (req, res) => {
-  const { email, name, password } = req.body;
-  if (!email || !name || !password) {
-    return res.status(500).json({
-      msg: 'form values not right',
-      type: 'validation error',
-    });
-  }
-  const hash = bcrypt.hashSync(password);
-  console.log(email, name, password);
-  console.log(hash);
-  db.transaction(trx => {
-    trx
+app
+  .post('/register', (req, res) => {
+    const { email, name, password } = req.body;
+    if (!email || !name || !password) {
+      return res.status(500).json({
+        msg: 'form values not right',
+        type: 'validation error',
+      });
+    }
+    const hash = bcrypt.hashSync(password);
+    console.log(email, name, password);
+
+    db('users')
+      .returning('*')
       .insert({
-        hash: hash,
-        email: email,
+        email: loginEmail[0],
+        name: name,
+        joined: new Date(),
       })
-      .into('login')
-      .returning('email')
-      .then(loginEmail => {
-        return trx('users')
-          .returning('*')
-          .insert({
-            email: loginEmail[0],
-            name: name,
-            joined: new Date(),
-          })
-          .then(user => {
-            res.json(user[0]);
-          });
-      })
-      .then(trx.commit)
-      .catch(trx.rollback);
-  }).catch(err => res.status(400).json({
-    msg: "error while registering",
-    type: "server side error"
-  }));
-});
+      .then(user => {
+        res.json(user[0]);
+      });
+
+    // // console.log(hash);
+    // // db.transaction(trx => {
+    // //   trx
+    // //     .insert({
+    // //       hash: hash,
+    // //       email: email,
+    // //     })
+    // //     .into('login')
+    // //     .returning('email')
+    // //     .then(loginEmail => {
+    // //       return trx('users')
+    // //         .returning('*')
+    // //         .insert({
+    // //           email: loginEmail[0],
+    // //           name: name,
+    // //           joined: new Date(),
+    // //         })
+    // //         .then(user => {
+    // //           res.json(user[0]);
+    // //         });
+    //     })
+    //     .then(trx.commit)
+    //     .catch(trx.rollback);
+  })
+  .catch(err =>
+    res.status(400).json({
+      msg: 'error while registering',
+      type: 'server side error',
+    })
+  );
 
 //@DESC: '/profile/:id'
 //@Method: GET
@@ -157,10 +172,9 @@ app.put('/image', (req, res) => {
     .catch(err => res.status(400).json('unable to get entries'));
 });
 
-
-//test route 
+//test route
 app.get('/register', (req, res) => {
-  res.send('this is working')
+  res.send('this is working');
 });
 
 app.listen(port, () => {
